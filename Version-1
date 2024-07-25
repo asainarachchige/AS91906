@@ -1,2 +1,22 @@
-print("Hello world")
-x = input
+import random
+from tkinter import *
+
+num = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+app = Tk()
+app.title("Math4kids")
+app.geometry("250x300")
+app.resizable(False, False)
+
+start = Button(app, text="Start")
+start.place()
+
+solving = Entry(app)
+solving.place()
+
+submit = Button(app, text="Submit")
+submit.place()
+
+try_again = Button(app, text="Try Again")
+try_again.place()
+app.mainloop()
