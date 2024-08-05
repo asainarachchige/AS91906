@@ -7,33 +7,46 @@ class MathGame:
     def __init__(self,root):
         self.root = root
         self.root.title("Maths Game")
-        self.root.geometry('700x500')
+        self.root.geometry('400x300')
 
-        self.x = random.randint(1,10) #Generates a random integer between 1 and 10 and assigns it to self.x
-        self.y = random.randint(1,10)
+        self.points = 0 #Intially the player's score (points) set to 0.
+        self.x = random.randint(1, 10) #Generates a random integer between 1 and 10 and assigns it to self.x
+        self.y = random.randint(1, 10)
         self.result = self.x + self.y #Calculates the sum of self.x and self.y and assigns it to self.result. This is the correct answer the user will have to find
 
         self.question_label = tk.Label(root, text=f'{self.x} + {self.y} = ?') #Makes a Label widget displaying the question with the two numbers to sum up. The text of the label shows the question eg (1+1)
         self.answer_entry = tk.Entry(root) #Creates an Entry widget where users can type out their response         
         self.submit_button = tk.Button(root, text='Submit', command=self.check_answer) #Creates a Button with the text "Submit". And when intiated, it calls the check_answer method.
         self.feedback_label= tk.Label(root, text='') #Creates a Label widget that displays feedback ("Correct Answer!" or "Wrong Answer!").
+        self.points_label =tk.Label(root, text=f'Points: {self.points}') #Creates a Label widget to display the score points. Initially shows 0 Points".
 
         self.question_label.pack(pady=20) #Adds the question label to the window with 20 pixels of padding vertically
         self.answer_entry.pack(pady=10)
         self.submit_button.pack(pady=10) #Adds the submit button to the window with 10 pixels of padding vertically
         self.feedback_label.pack(pady=10)
+        self.points_label.pack(pady=10)
+
 
     def check_answer(self): #Defines a way to check if the user's answer is correct.
         try:
             answer = int(self.answer_entry.get())
             if answer == self.result: #Checks if the user's answer matches the correct result.
                 self.feedback_label.config(text='Correct!', fg='green') #Updates the feedback label to display "Correct!" in green if the answer is correct.
+                self.points += 1 #The player's points increases in increments of 1
+                self.points_label.config(text=f'Points: {self.points}') #Updates the current points label to show the new score.
+                self.generate_question() #Assigns the "generate_question" method to generate a new question.
             else:
                 self.feedback_label.config(text='Wrong!', fg='red') #Updates the feedback label to display "Wrong!" in red if the answer is incorrect.
         except ValueError: #Handles the case where the user input is not a valid number.
             self.feedback_label.config(text='Enter a Valid Input!', fg='red') #Updates the feedback label to prompt the user to enter a valid number.
         self.answer_entry.delete(0, tk.END) #Clears the entry widget after checking the answer.
-    
+
+    def generate_question(self): #Defines a method to make a new math question
+        self.x = random.randint(1, 10) #Generates a new random number between 1 and 10 and assigns it to self.x
+        self.y = random.randint(1, 10) #Generates a new random number between 1 and 10 and assigns it to self.y
+        self.result = self.x + self.y # Calculates result by the addition of self x and self y
+        self.question_label.config(text=f'{self.x} + {self.y} = ?') #Updates the question label with the new addition question.
+
 if __name__ == '__main__':
     root = tk.Tk()
     app = MathGame(root)
