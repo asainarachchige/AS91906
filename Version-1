@@ -1,42 +1,45 @@
+import tkinter as tk
+import time
+import threading
 import random
-from tkinter import *
 
-num = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+class MathGame:
+    def __init__(self,root):
+        self.root = root
+        self.root.title("Maths Game")
+        self.root.geometry('700x500')
 
-###Function###!
-#varl is the solving Entry ( solving = Entry(app) )
-def submt(var1):
-    if var1.get() ==str(resultPLUS()):
-        correct = Label(app, text="Correct!", fg="green", font=("Courier", 16))
-        correct.place(relx=0.3, rely=0.2)
-    else:
-        wrong = Label(app, text="Correct!", fg="green", font=("Courier", 16))
-        wrong.place(relx=0.3, rely=0.2)    
+        self.x = random.randint(1,10) #Generates a random integer between 1 and 10 and assigns it to self.x
+        self.y = random.randint(1,10)
+        self.result = self.x + self.y #Calculates the sum of self.x and self.y and assigns it to self.result. This is the correct answer the user will have to find
+
+        self.question_label = tk.Label(root, text=f'{self.x} + {self.y} = ?') #Makes a Label widget displaying the question with the two numbers to sum up. The text of the label shows the question eg (1+1)
+        self.answer_entry = tk.Entry(root) #Creates an Entry widget where users can type out their response         
+        self.submit_button = tk.Button(root, text='Submit', command=self.check_answer) #Creates a Button with the text "Submit". And when intiated, it calls the check_answer method.
+        self.feedback_label= tk.Label(root, text='') #Creates a Label widget that displays feedback ("Correct Answer!" or "Wrong Answer!").
+
+        self.question_label.pack(pady=20) #Adds the question label to the window with 20 pixels of padding vertically
+        self.answer_entry.pack(pady=10)
+        self.submit_button.pack(pady=10) #Adds the submit button to the window with 10 pixels of padding vertically
+        self.feedback_label.pack(pady=10)
+
+    def check_answer(self): #Defines a way to check if the user's answer is correct.
+        try:
+            answer = int(self.answer_entry.get())
+            if answer == self.result: #Checks if the user's answer matches the correct result.
+                self.feedback_label.config(text='Correct!', fg='green') #Updates the feedback label to display "Correct!" in green if the answer is correct.
+            else:
+                self.feedback_label.config(text='Wrong!', fg='red') #Updates the feedback label to display "Wrong!" in red if the answer is incorrect.
+        except ValueError: #Handles the case where the user input is not a valid number.
+            self.feedback_label.config(text='Enter a Valid Input!', fg='red') #Updates the feedback label to prompt the user to enter a valid number.
+        self.answer_entry.delete(0, tk.END) #Clears the entry widget after checking the answer.
     
-def try_again():
-    try_again.num1update = random.choice(num)
-    try_again.num2update = random.choice(num)
-    question = Label(app, text=f"{try_again.num1update}+{try_again.num2update}", font=("Cour"))
-    question.place(relx=0.16, rely=0.14, relwidth=0.7, relheight=0.23)
+if __name__ == '__main__':
+    root = tk.Tk()
+    app = MathGame(root)
+    root.mainloop()
 
-def resultPLUS():
-    try_again
 
-    return try_again.num1update + try_again.num2update
-app = Tk()
-app.title("Math4kids")
-app.geometry("250x400")
-app.resizable(False, False)
 
-start = Button(app, text="Start", command=try_again)
-start.place(relx=0.45, rely=0.2)
 
-solving = Entry(app)
-solving.place(relx=0.35, rely=0.4, relwidth=0.34, relheight=0.23)
 
-submit = Button(app, text="Submit", command=lambda: submt(solving))
-submit.place(relx=0.35, rely=0.64, relwidth=0.34, relheight=0.23)
-
-try_again = Button(app, text="Try Again", command=try_again)
-try_again.place(relx=0.39, rely=0.9)
-app.mainloop()
