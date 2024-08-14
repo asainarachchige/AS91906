@@ -1,5 +1,6 @@
 import tkinter as tk
 import random
+import time
 
 class DifficultySelection:
     def __init__(self, root):
@@ -29,30 +30,45 @@ class MathGame:
     def __init__(self, root, difficulty_level):
         self.root = root
         self.root.title('Math Game')
-        self.root.geometry('300x300')
-
-        self.points = 0  # Initially the player's score (points) is set to 0.
+        self.root.geometry('300x325')
+        
+        self.points = 0
         self.diff_level = difficulty_level
+        self.start_time = None
 
-        self.points_label = tk.Label(root, text=f'Points: {self.points}')  # Creates a Label widget to display the score points. Initially shows "0 Points".
-        self.question_label = tk.Label(root, text='')  # Makes a Label widget displaying the question with the two numbers to sum up.
-        self.answer_entry = tk.Entry(root)  # Creates an Entry widget where users can type out their response         
-        self.submit_button = tk.Button(root, text='Submit', command=self.check_answer)  # Creates a Button with the text "Submit". And when initiated, it calls the check_answer method.
-        self.feedback_label = tk.Label(root, text='')  # Creates a Label widget that displays feedback ("Correct!" or "Wrong!").
+        # GUI Components
+        self.points_label = tk.Label(root, text=f'Points: {self.points}')
+        self.timer_label = tk.Label(root, text='Time: 00:00')
+        self.question_label = tk.Label(root, text='')
+        self.answer_entry = tk.Entry(root)
+        self.submit_button = tk.Button(root, text='Submit', command=self.check_answer)
+        self.feedback_label = tk.Label(root, text='')
         self.start_button = tk.Button(root, text='Start Game', command=self.start_game)
 
+        # Layout
         self.points_label.pack(pady=10)
-        self.question_label.pack(pady=10)  # Adds the question label to the window with 10 pixels of padding vertically
+        self.timer_label.pack(pady=10)
+        self.question_label.pack(pady=10)
         self.answer_entry.pack(pady=10)
-        self.submit_button.pack(pady=10)  # Adds the submit button to the window with 10 pixels of padding vertically
+        self.submit_button.pack(pady=10)
         self.feedback_label.pack(pady=10)
-        self.start_button.pack(pady=10) # Adds the start button to the window with 10 pixels of padding vertically
+        self.start_button.pack(pady=10)
 
     def start_game(self):
         self.points = 0
+        self.start_time = time.time()  # Start the timer
         self.update_points()
+        self.update_timer()
         self.generate_question()
         self.answer_entry.focus_set()
+
+    def update_timer(self):
+        if self.points < 10:  # Update the timer only if the game is ongoing
+            elapsed_time = int(time.time() - self.start_time)
+            minutes = elapsed_time // 60
+            seconds = elapsed_time % 60
+            self.timer_label.config(text=f'Time: {minutes:02}:{seconds:02}')
+            self.root.after(1000, self.update_timer)  # Update the timer every second
 
     def generate_question(self):
         if self.diff_level == 1:  # Easy: Very simple addition and subtraction
@@ -109,20 +125,23 @@ class MathGame:
         self.points_label.config(text=f'Points: {self.points}')
 
     def end_game(self):
-        self.feedback_label.config(text='Congratulations! You reached 10 points.', fg='blue')
-        self.save_high_score()
-        self.start_button.config(text='Play Again', command=self.restart_game)
+        elapsed_time = int(time.time() - self.start_time)
+        minutes = elapsed_time // 60
+        seconds = elapsed_time % 60
+        self.feedback_label.config(text=f'Congratulations! You reached 10 points in {minutes:02}:{seconds:02}.', fg='blue')
+        self.save_high_score(minutes, seconds)
+        self.start_button.config(text='Play Again', command=self.return_to_difficulty_selection)
 
-    def save_high_score(self):
-        # Save the high score to a file
+    def save_high_score(self, minutes, seconds):
+        # Save the high score and time to a file
         with open('high_scores.txt', 'a') as file:
-            file.write(f'Score: {self.points} - Difficulty: {self.diff_level}\n')
+            file.write(f'Score: {self.points} - Difficulty: {self.diff_level} - Time: {minutes:02}:{seconds:02}\n')
 
-    def restart_game(self):
+    def return_to_difficulty_selection(self):
         self.root.destroy()
-        game_root = tk.Tk()
-        MathGame(game_root, self.diff_level)
-        game_root.mainloop()
+        main_root = tk.Tk()
+        DifficultySelection(main_root)
+        main_root.mainloop()
 
 if __name__ == '__main__':
     root = tk.Tk()
