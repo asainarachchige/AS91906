@@ -1,0 +1,71 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+import json
+
+class LoginMenu(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self) 
+        
+        self.selection = tk.IntVar()
+
+        self.title("Boxing Math Game")
+        self.config(background="grey")
+        self.geometry("700x500")  
+        self.resizable(False, False)  
+
+        
+        try:
+            with open("data.json", 'r') as json_file:
+                self.users = json.load(json_file)
+        except:
+            self.users = []
+
+        self.username = tk.StringVar()
+        self.password = tk.StringVar()
+
+        
+        tk.Label(text="Username", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=160)  
+        tk.Entry(textvariable=self.username, font=("Arial", 13)).place(x=300, y=160)
+        tk.Label(text="Password", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=220)
+        tk.Entry(textvariable=self.password, font=("Arial", 13)).place(x=300, y=220)
+        tk.Label(text="Boxing maths game", font=("Arial", 25), fg="white", bg="grey").place(x=245, y=100)
+
+        tk.Radiobutton(self, bg="grey", text="Login", variable=self.selection, value=1).place(x=310, y=300)
+        tk.Radiobutton(self, bg="grey", text="Signup", variable=self.selection, value=2).place(x=310, y=340)
+
+        button_login = tk.Button(text="Continue", font=("Arial", 12), command=self.login_signup)
+        button_login.place(x=315, y=400)
+
+    def login_signup(self):
+        if self.selection.get() not in [1, 2]:
+            messagebox.showwarning(message="You must select login or signup.")
+        elif not self.username.get().isalpha() or len(self.username.get()) < 5:
+            messagebox.showerror(message="Username must be only letters and minimum 5 chars.")
+        else:
+            if len(self.password.get()) < 4 or ' ' in self.password.get():
+                messagebox.showerror(message="Password must have no spaces and be a minimum of 4 chars.")
+            else:
+                for account in self.users:
+                    if account["username"] == self.username.get() and account["password"] == self.password.get():
+                        if self.selection.get() == 1:
+                            self.destroy()
+                            Menu()  
+                            return
+                        else:
+                            messagebox.showerror(message="User with this account name already exists.")
+                            return
+                
+                if self.selection.get() == 1:
+                    messagebox.showerror(message="There is no user with these credentials.")
+                else:
+                    self.users.append({"username": self.username.get(), "password": self.password.get()})
+                    with open("data.json", "w") as w:
+                        json.dump(self.users, w)
+                    self.destroy()
+                    Menu()  
+                    return
+
+if __name__ == "__main__":
+    app = LoginMenu()
+    app.mainloop()
