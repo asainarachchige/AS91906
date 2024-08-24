@@ -7,22 +7,21 @@ OPERATIONS = ["+", "-", "*"]
 
 class LoginMenu(tk.Tk):
     def __init__(self):
-        tk.Tk.__init__(self)  # Direct call to the Tk constructor
+        tk.Tk.__init__(self) 
 
         self.selection = tk.IntVar()
 
         self.title("Boxing Math Game")
         self.config(background="grey")
-        self.geometry("700x500")  # Removed unnecessary f-string
-        self.resizable(False, False)  # Used False instead of 0 for clarity
+        self.geometry("700x500")  
+        self.resizable(False, False)  
 
         # Load user data
         try:
             with open("data.json", 'r') as json_file: 
                 self.users = json.load(json_file)
         except:
-            self.users = []  # Beginners often use a broad exception
-
+            self.users = []  
         self.username = tk.StringVar()
         self.password = tk.StringVar()
 
