@@ -72,22 +72,6 @@ class LoginMenu(tk.Tk):
                         Menu()
                         return
 
-class Menu(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
-
-        self.title("Boxing Math Game")
-        self.config(background="grey")
-        self.geometry("700x500")
-        self.resizable(False, False)
-
-        button_start = tk.Button(self, text="Start Game", font=("Arial", 20), command=self.change_page)
-        button_start.place(relx=0.5, rely=0.5, anchor="c")
-
-    def change_page(self):
-        self.destroy()
-        Game()
-
 if __name__ == "__main__":
     app = LoginMenu()
     app.mainloop()
