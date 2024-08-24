@@ -7,21 +7,20 @@ OPERATIONS = ["+", "-", "*"]
 
 class LoginMenu(tk.Tk):
     def __init__(self):
-        tk.Tk.__init__(self)  # Direct call to the Tk constructor
-
+        tk.Tk.__init__(self)  
         self.selection = tk.IntVar()
 
         self.title("Boxing Math Game")
         self.config(background="grey")
-        self.geometry("700x500")  # Removed unnecessary f-string
-        self.resizable(False, False)  # Used False instead of 0 for clarity
+        self.geometry("700x500") 
+        self.resizable(False, False)  
 
-        # Load user data
+        
         try:
             with open("data.json", 'r') as json_file: 
                 self.users = json.load(json_file)
         except:
-            self.users = []  # Beginners often use a broad exception
+            self.users = []  
 
         self.username = tk.StringVar()
         self.password = tk.StringVar()
@@ -55,7 +54,7 @@ class LoginMenu(tk.Tk):
                         found = True
                         if self.selection.get() == 1:  # Login
                             self.destroy()
-                            Menu()  # Go to Menu
+                            Menu()  
                             return
                         else:
                             messagebox.showerror("Error", "User with this account name already exists.")
@@ -97,9 +96,32 @@ class Game(tk.Tk):
         self.geometry("500x500")
         self.resizable(False, False)
 
-        self.question = tk.Label(self, text="2 + 2", font=("Arial", 23), background="grey", fg="white")
-        self.question.place(relx=0.5, rely=0.5, anchor="center")
+        self.entry_variable = tk.StringVar()
 
+        self.question = tk.Label(self, font=("Arial", 23), background="grey", fg="white")
+        self.question.place(relx=0.5, y=200, anchor="center")
+
+        tk.Entry(self, font=("Arial", 16), bg="grey", width=10, textvariable=self.entry_variable).place(relx=0.5, y=300, anchor="center")
+        tk.Button(self, text="Submit", command=self.check_answer).place(relx=0.5, y=350, anchor="center")
+
+        self.gen_question()
+
+    def gen_question(self):
+        num1 = random.randint(0, 10)
+        num2 = random.randint(0, 10)
+        operation = random.choice(["+", "-"])
+        self.answer = eval(f"{num1} {operation} {num2}")
+        self.question.config(text=f"{num1} {operation} {num2}")
+
+    def check_answer(self):
+        try:
+            if int(self.entry_variable.get()) == self.answer:
+                messagebox.showinfo("Result", "Correct!")
+                self.gen_question()  # Make a new question
+            else:
+                messagebox.showinfo("Result", "Wrong!")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number")
 
 if __name__ == "__main__":
     app = LoginMenu()
