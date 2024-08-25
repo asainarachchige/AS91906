@@ -25,6 +25,7 @@ class LoginMenu(tk.Tk):
         self.username = tk.StringVar()
         self.password = tk.StringVar()
 
+        # UI setup for login menu
         tk.Label(self, text="Username", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=160)
         tk.Entry(self, width=20, textvariable=self.username, font=("Arial", 13)).place(x=300, y=160)
         tk.Label(self, text="Password", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=220)
@@ -95,24 +96,29 @@ class Game(tk.Tk):
         tk.Tk.__init__(self)
 
         self.title("Boxing Math Game")
-        self.config(background="grey")
+        self.config(background="#BB005E")
         self.geometry("500x500")
         self.resizable(False, False)
 
         self.entry_variable = tk.StringVar()
 
-        self.canvas = tk.Canvas(self, width=700, height=500, background="grey", highlightthickness=0)
+        self.canvas = tk.Canvas(self, width=700, height=500, background="#BB005E", highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
 
-        tk.Entry(self, font=("Arial", 16), bg="grey", width=10, textvariable=self.entry_variable).place(relx=0.5, y=440, anchor="center")
+        tk.Entry(self, font=("Arial", 16), bg="#BB005E", width=10, textvariable=self.entry_variable).place(relx=0.5, y=440, anchor="center")
         tk.Button(self, text="Submit", command=self.check_answer).place(relx=0.5, y=470, anchor="center")
-        self.question = tk.Label(self, font=("Arial", 23), background="grey", fg="white")
+        self.question = tk.Label(self, text="2+2", font=("Arial", 23), background="#BB005E", fg="white")
         self.question.place(relx=0.5, anchor="center", y=390)
 
-        self.user_punches_label = tk.Label(self, text="User Punches: 0/10", font=("Arial", 14), background="grey", fg="white")
+        self.image_gif = tk.PhotoImage(file="boxing.gif", format="gif -index 0")
+        self.canvas.create_image(0, 0, anchor="nw", image=self.image_gif)
+
+        self.wrong_or_right = tk.Label(self, text="Wrong", font=("Arial", 14), background="#BB005E", fg="red")
+
+        self.user_punches_label = tk.Label(self, text="User Punches: 0/10", font=("Arial", 14), background="#BB005E", fg="white")
         self.user_punches_label.place(x=2, anchor="nw", y=370)
 
-        self.cpu_punches_label = tk.Label(self, text="CPU Punches: 0/10", font=("Arial", 14), background="grey", fg="white")
+        self.cpu_punches_label = tk.Label(self, text="CPU Punches: 0/10", font=("Arial", 14), background="#BB005E", fg="white")
         self.cpu_punches_label.place(relx=1, x=-2, anchor="ne", y=370)
 
         self.gen_question()
@@ -121,28 +127,63 @@ class Game(tk.Tk):
         num1 = random.randint(0, 10)
         num2 = random.randint(0, 10)
         operation = random.choice(["+", "-"])
-        self.answer = eval(f"{num1} {operation} {num2}")
-        self.question.config(text=f"{num1} {operation} {num2}")
+        question = f"{num1} {operation} {num2}"
+        self.answer = eval(question)
+        self.question.config(text=question)
+
+    def player_anim(self, set_start):
+        try:
+            if set_start:
+                self.current_frame = 0
+            self.image_gif = tk.PhotoImage(file="boxing.gif", format=f"gif -index {self.current_frame}")
+            self.canvas.create_image(0, 0, anchor="nw", image=self.image_gif)
+            self.current_frame += 1
+            if self.current_frame < 10:
+                self.after(10, lambda: self.player_anim(False))
+        except:
+            pass  # Beginners might not handle exceptions with specific actions
+
+    def cpu_anim(self, set_start):
+        try:
+            if set_start:
+                self.current_frame = 11
+            self.image_gif = tk.PhotoImage(file="boxing.gif", format=f"gif -index {self.current_frame}")
+            self.canvas.create_image(0, 0, anchor="nw", image=self.image_gif)
+            self.current_frame += 1
+            if self.current_frame < 20:
+                self.after(10, lambda: self.cpu_anim(False))
+        except:
+            pass  # No specific exception handling
 
     def check_answer(self):
         try:
             if int(self.entry_variable.get()) == self.answer:
+                self.wrong_or_right.config(text="Right", fg="green") 
+                self.wrong_or_right.place(relx=0.9, anchor="c", y=430)
+                self.player_anim(True)
                 self.player_punches += 1
                 self.user_punches_label.config(text=f"Player Punches: {self.player_punches}/10")
             else:
+                self.wrong_or_right.config(text="Wrong", fg="red")
+                self.wrong_or_right.place(relx=0.9, anchor="c", y=430)
+                self.cpu_anim(True)
                 self.cpu_punches += 1
                 self.cpu_punches_label.config(text=f"CPU Punches: {self.cpu_punches}/10")
 
             if self.player_punches >= 10:
                 messagebox.showinfo("Info", "You win.")
                 self.destroy()
+                Menu()
+                return
             elif self.cpu_punches >= 10:
                 messagebox.showinfo("Info", "You lose.")
                 self.destroy()
+                Menu()
+                return
             else:
                 self.gen_question()
-        except ValueError:
-            messagebox.showerror("Error", "Please enter a valid number")
+        except:
+            messagebox.showerror("Error", "Enter a proper number")
     
 if __name__ == "__main__":
     app = LoginMenu()
