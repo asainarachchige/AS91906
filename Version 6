@@ -3,7 +3,7 @@ from tkinter import messagebox
 import random
 import json
 
-OPERATIONS = ["+", "-", "*"]
+OPERATIONS = ["+", "-", "*","/"]
 
 class LoginMenu(tk.Tk):
     def __init__(self):
@@ -26,10 +26,10 @@ class LoginMenu(tk.Tk):
 
         # UI setup for login menu
         tk.Label(self, text="Username", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=160)
-        tk.Entry(self, width=20, textvariable=self.username, font=("Arial", 13)).place(x=300, y=160)
+        tk.Entry(self, width=20, textvariable=self.username, font=("Arial", 13)).place(x=300, y=156)
         tk.Label(self, text="Password", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=220)
-        tk.Entry(self, width=20, textvariable=self.password, font=("Arial", 13)).place(x=300, y=220)
-        tk.Label(self, text="Boxing maths game", font=("Arial", 25), fg="white", bg="#BB005E").place(x=245, y=100)
+        tk.Entry(self, width=20, textvariable=self.password, font=("Arial", 13)).place(x=300, y=216)
+        tk.Label(self, text="Boxing Maths Game", font=("Impact", 35), fg="white", bg="#BB005E").place(x=201, y=40)
 
         # Radio buttons for login and signup
         tk.Radiobutton(self, text="Login", bg="#BB005E", variable=self.selection, value=1).place(x=310, y=300)
@@ -84,7 +84,6 @@ class Menu(tk.Tk):
 
     def change_page(self):
         self.destroy()
-        # Change to open the difficulty selection window**
         DifficultySelection()
 
 class DifficultySelection(tk.Tk):  
@@ -111,7 +110,7 @@ class DifficultySelection(tk.Tk):
         MathGame(game_root, difficulty_level)
         game_root.mainloop()
 
-class MathGame:  # Corrected class name from Game to MathGame and changed to a regular class
+class MathGame:  
     player_punches = 0
     cpu_punches = 0
     current_frame = 0
@@ -159,7 +158,7 @@ class MathGame:  # Corrected class name from Game to MathGame and changed to a r
             num2 = random.randint(0, 15)
             operation = random.choice(["+", "-", "*"])
         elif self.difficulty_level == 3:
-            num1 = random.randint(-5, 30)
+            num1 = random.randint(1, 30)
             num2 = random.randint(1, 10)
             operation = random.choice(["*", "/"])
 
