@@ -3,98 +3,130 @@ from tkinter import messagebox
 import random
 import json
 
+# Outline the operations that are accessible for math problems.
 OPERATIONS = ["+", "-", "*", "/"]
 
 class LoginMenu(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
-        self.selection = tk.IntVar()
+    """ Class for the login menu window. """
 
+    def __init__(self):
+        # Establish the Tkinter window for the login page
+        tk.Tk.__init__(self)
+        self.selection = tk.IntVar() # Variable for recording user's selection (Signup or Login)
+
+        # Setting up the primary attributes  of the window
         self.title("Boxing Math Game")
         self.config(background="#BB005E")
         self.geometry("700x500")
-        self.resizable(False, False)
+        self.resizable(False, False) # Turn off the window resizing.
 
+        # Open a json file to load user login details from the database
         try:
             with open("data.json", 'r') as json_file: 
-                self.users = json.load(json_file)
+                self.users = json.load(json_file) # Load existing users from the file
         except:
-            self.users = []  
+            self.users = [] # Create an empty user list if the file does not exist or an error arises.
 
-        self.username = tk.StringVar()
-        self.password = tk.StringVar()
 
-        # UI setup for login menu
+        self.username = tk.StringVar() # Variable to store the username that was entered.
+        self.password = tk.StringVar() # Variable to store the password that was entered with the corresponding username.
+
+        # Login menu user interface design.
         tk.Label(self, text="Username", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=160)
         tk.Entry(self, width=20, textvariable=self.username, font=("Arial", 13)).place(x=300, y=160)
         tk.Label(self, text="Password", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=220)
         tk.Entry(self, width=20, textvariable=self.password, font=("Arial", 13)).place(x=300, y=220)
         tk.Label(self, text="Boxing Maths Game", font=("Impact", 35), fg="white", bg="#BB005E").place(relx=0.5, anchor="c", y=40)
 
-        # Radio buttons for login and signup
+        # Sign-up and login radio buttons
         tk.Radiobutton(self, text="Login", bg="#BB005E", variable=self.selection, value=1).place(x=310, y=300)
         tk.Radiobutton(self, text="Signup", bg="#BB005E", variable=self.selection, value=2).place(x=310, y=340)
 
+        # Clickable Continue button for executing either the signup or login choice.
         button_login = tk.Button(self, text="Continue", font=("Arial", 12), command=self.login_signup)
         button_login.place(x=315, y=400)
 
     def login_signup(self):
+        """ Deals with the functionality and process for logging in or signing up a user. """
+
+        # Confirming whether the option to sign up or log in has been chosen by the user.
         if self.selection.get() not in [1, 2]:
-            messagebox.showwarning("Warning", "You must select login or signup.")
-        elif not self.username.get().isalpha() or len(self.username.get()) < 5:
-            messagebox.showerror("Error", "Username must be only letters and minimum 5 chars.")
-        else:
-            if len(self.password.get()) < 4 or ' ' in self.password.get():
-                messagebox.showerror("Error", "Password must have no spaces and be a minimum of 4 chars.")
+            messagebox.showwarning("Warning", "Please choose either 'Login' or 'Signup' to proceed.")
+            return
+
+        # Verifying username inputed
+        username = self.username.get().strip() # Remove any extra whitespace from the username input, to save the corrected value for future use.
+
+        if not username.isalpha() or len(username) < 5 or len(username) > 10:
+            messagebox.showerror("Error", "Invalid Username: Username must be between 5 and 10 letters and contain only letters.")
+            return
+
+        # Veryfying password inputed
+        password = self.password.get() # To get the password that was entered out of the input box.
+        if len(password) < 4 or len(password) > 10 or ' ' in password:
+            messagebox.showerror("Error", "Invalid Password: Password must be between 4 and 10 characters long.")
+            return
+
+        # Control the sign-up or login action.
+        found = False # Check to see if the user is among the current existing users.
+        for account in self.users:
+            if account["username"] == username and account["password"] == password:
+                found = True
+                if self.selection.get() == 1:  # If the option to log in is chosen.
+                    self.destroy()
+                    Menu()   # Go to the menu screen.
+                    return
+                else:  # If the option to signup is selected.
+                    messagebox.showerror("Error", "A user with this username already exists. Please use a different username.")
+                    return
+        
+        # Process signup if user was not found
+        if not found:
+            if self.selection.get() == 1: # If a user attempts to log in but a login is not made.
+                messagebox.showerror("Error", "Could not find an exisitng account with the matching credentials, please try again.")
             else:
-                found = False
-                for account in self.users:
-                    if account["username"] == self.username.get() and account["password"] == self.password.get():
-                        found = True
-                        if self.selection.get() == 1:  # Login
-                            self.destroy()
-                            Menu()  # Go to Menu
-                            return
-                        else:
-                            messagebox.showerror("Error", "User with this account name already exists.")
-                            return
-                
-                if not found:
-                    if self.selection.get() == 1:
-                        messagebox.showerror("Error", "There is no user with these credentials.")
-                    else:
-                        self.users.append({"username": self.username.get(), "password": self.password.get()})
-                        with open("data.json", "w") as w:
-                            json.dump(self.users, w)
-                        self.destroy()
-                        Menu()
-                        return
+                # Insert a new user in the list of users and save to the json file for future reference,
+                self.users.append({"username": username, "password": password})
+                with open("data.json", "w") as w:
+                    json.dump(self.users, w)
+                self.destroy()
+                Menu()
+                return
 
 class Menu(tk.Tk):
+    """ Class for the menu window. """
+
     def __init__(self):
+        # Set up the Tk class.
         tk.Tk.__init__(self)
 
+        # Set the properties of the window screen.
         self.title("Boxing Math Game")
         self.config(background="#BB005E")
         self.geometry("700x500")
-        self.resizable(False, False)
+        self.resizable(False, False) # Turn off the window resizing.
 
+        # The "Start Game" button which will direct user to the difficulty menu.
         button_start = tk.Button(self, text="Start Game", font=("Arial", 20), command=self.change_page)
         button_start.place(relx=0.5, rely=0.4, anchor="c")
 
+        # Instructions button to view how to use the game
         button_instructions = tk.Button(self, text="Instructions", font=("Arial", 20), command=self.show_instructions)
         button_instructions.place(relx=0.5, rely=0.6, anchor="c")
 
     def change_page(self):
+        """ Kills the current menu and launches the difficulty selection window. """
         self.destroy()
         DifficultySelection()
 
     def show_instructions(self):
+        "" "Opens a new window presenting the game instructions." ""
         instruction_window = tk.Toplevel(self)
         instruction_window.title("Instructions")
         instruction_window.geometry("500x400")
         instruction_window.config(background="#BB005E")
 
+        # Basic Instructions on how to use the game for the user
         instructions = (
             "1. Select Start Game.\n"
             "2. Choose difficulty level: Easy, Medium, Hard.\n"
@@ -106,71 +138,94 @@ class Menu(tk.Tk):
             "6. Find how you performed against the CPU in the game_results file.\n"
         )
 
+        # Labels that show the instructions
         tk.Label(instruction_window, text="Instructions", font=("Arial", 20), bg="#BB005E", fg="white").pack(pady=10)
         tk.Label(instruction_window, text=instructions, font=("Arial", 14), bg="#BB005E", fg="white", justify=tk.LEFT).pack(pady=20)
 
 class DifficultySelection(tk.Tk):  
+    """ Class for the difficulty selection window. """
+
     def __init__(self):
+        ## Establish the Tk class.
         tk.Tk.__init__(self)
         self.title('Select Difficulty')
-        self.geometry('400x450')
-        self.configure(bg='#BB005E')
+        self.geometry('400x450')  # Set Window Size.
+        self.configure(bg='#BB005E')  # Set background color.
 
+        # Label for difficulty selection.
         self.label = tk.Label(self, text='Select Difficulty Level', font=('Arial', 20), bg='#BB005E', fg='#FFFFFF')
+        
+        # The Buttons for every level of difficulty choice.
         self.easy_button = tk.Button(self, text='Easy', width=20, height=3, font=('Arial', 16), command=lambda: self.start_game(1), fg='#000000')
         self.medium_button = tk.Button(self, text='Medium', width=20, height=3, font=('Arial', 16), command=lambda: self.start_game(2), fg='#000000')
         self.hard_button = tk.Button(self, text='Hard', width=20, height=3, font=('Arial', 16), command=lambda: self.start_game(3), fg='#000000')
 
-        self.label.pack(pady=20)
-        self.easy_button.pack(pady=15)
-        self.medium_button.pack(pady=15)
-        self.hard_button.pack(pady=15)
+        # Pack widgets into the window using the padding option.
+        self.label.pack(pady=20) # Label placed with 20 pixels of vertical padding.
+        self.easy_button.pack(pady=15) # Button has 15 pixels of vertical padding.
+        self.medium_button.pack(pady=15) # Button has 15 pixels of vertical padding.
+        self.hard_button.pack(pady=15) # Button has 15 pixels of vertical padding.
 
     def start_game(self, difficulty_level):
-        self.destroy() # Close the difficulty selection window after difficulty level is chosen
-        game_root = tk.Tk()
-        MathGame(game_root, difficulty_level)
-        game_root.mainloop()
+        """ Launches the game with the difficulty level chosen. """
+        self.destroy() # After selecting a difficulty level, the difficulty selection window is destroyed.
+        game_root = tk.Tk() # Creates a new window (Tk) for the game using the Tkinter library.
+        MathGame(game_root, difficulty_level) # Launch the math game at the chosen level of difficulty.
+        game_root.mainloop() # Run the main loop for the game.
 
 class MathGame:  
-    player_punches = 0
-    cpu_punches = 0
-    current_frame = 0
+    """ Class covering the main gameplay mechanics."""
+
+    # Class-level variables for game setting.
+    player_punches = 0 # The amount of punches the player has scored.
+    cpu_punches = 0 # The amount of punches the CPU has scored.
+    current_frame = 0 # The animation's current frame.
 
     def __init__(self, root, difficulty_level): 
+        """ Initializes the math game window and game state. """
         self.root = root
         self.difficulty_level = difficulty_level 
 
+        # Set up the primary game window.
         self.root.title("Boxing Math Game")
-        self.root.config(background="#BB005E")
         self.root.geometry("500x600")
+        self.root.config(background="#BB005E")
         self.root.resizable(False, False)
 
+        # Set up the entry widget for user input
         self.entry_variable = tk.StringVar()
 
+        # Create a canvas for animation and display.
         self.canvas = tk.Canvas(self.root, width=700, height=600, background="#BB005E", highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
 
+        # Set up input box for answers and a submit button.
         tk.Entry(self.root, font=("Arial", 16), bg="#BB005E", width=10, textvariable=self.entry_variable).place(relx=0.5, y=490, anchor="center")
         tk.Button(self.root, text="Submit", command=self.check_answer).place(relx=0.5, y=530, anchor="center")
         
+        # A Label to show the current math question the user is presented with.
         self.question = tk.Label(self.root, text="2+2", font=("Arial", 23), background="#BB005E", fg="white")
         self.question.place(relx=0.5, anchor="center", y=440)
         
+        # Load the animation GIF for player and CPU.
         self.image_gif = tk.PhotoImage(file="boxing.gif", format="gif -index 0")
         self.canvas.create_image(0, 0, anchor="nw", image=self.image_gif)
 
+        # Label thats shows whether the user's answer was right or wrong.
         self.wrong_or_right = tk.Label(self.root, text="Wrong", font=("Arial", 14), background="#BB005E", fg="red")
 
+        # Two Labels to show the current score for player and CPU.
         self.player_punches_label = tk.Label(self.root, text="Player Punches: 0/10", font=("Arial", 14), background="#BB005E", fg="white")
         self.player_punches_label.place(x=2, anchor="nw", y=370)
         
         self.cpu_punches_label = tk.Label(self.root, text="CPU Punches: 0/10", font=("Arial", 14), background="#BB005E", fg="white")
         self.cpu_punches_label.place(relx=1, x=-2, anchor="ne", y=370)
 
+        # Generate the first math question.
         self.gen_question()
 
     def gen_question(self):
+        # Generate a new math question based on the difficulty level.
         num1, num2 = 0, 0
         if self.difficulty_level == 1:
             num1 = random.randint(-5, 10)
@@ -181,82 +236,95 @@ class MathGame:
             num2 = random.randint(0, 15)
             operation = random.choice(["+", "-", "*"])
         elif self.difficulty_level == 3:
-            num1 = random.randint(1, 30)
-            num2 = random.randint(1, 10)
+            num1 = random.randint(5, 15)
+            num2 = random.randint(3, 10)
             operation = random.choice(["*", "/"])
 
+        # Make the question string and calculate the correct answer.
         if operation == "/":
-            question = f"{num1 * num2} / {num2}"  # Ensure no decimal place results for division
+            question = f"{num1 * num2} / {num2}"  # Ensure division does not end up in decimal numbers.
             self.answer = num1
         else:
             question = f"{num1} {operation} {num2}"
             self.answer = eval(question)
 
+        # Update the question label with the new question.
         self.question.config(text=question)
 
     def player_anim(self, set_start):
+        # Play the player's animation sequence.
         try:
             if set_start:
-                self.current_frame = 0
+                self.current_frame = 0  # Reset to the start frame of the animation.
+            # Update the GIF image for the canvas with the current frame.
             self.image_gif = tk.PhotoImage(file="boxing.gif", format=f"gif -index {self.current_frame}")
             self.canvas.create_image(0, 0, anchor="nw", image=self.image_gif)
             self.current_frame += 1
             if self.current_frame < 10:
+                # Schedule the next frame update.
                 self.root.after(10, lambda: self.player_anim(False))
         except:
-            pass  
+            pass  # Ignore errors during animation update.
 
     def cpu_anim(self, set_start):
+        # Play the CPU's animation sequence.
         try:
             if set_start:
-                self.current_frame = 11
+                self.current_frame = 11  # Start from the CPU's animation frames.
+            # Update the GIF image for the canvas with the current frame.
             self.image_gif = tk.PhotoImage(file="boxing.gif", format=f"gif -index {self.current_frame}")
             self.canvas.create_image(0, 0, anchor="nw", image=self.image_gif)
             self.current_frame += 1
             if self.current_frame < 20:
+                # Schedule the next frame update.
                 self.root.after(10, lambda: self.cpu_anim(False))
         except:
-            pass  
+            pass  # Ignore errors during animation update.
 
     def check_answer(self):
+        # Check the user's answer and update scores and animations accordingly.
         try:
             if int(self.entry_variable.get()) == self.answer:
                 self.wrong_or_right.config(text="Right", fg="green")
-                self.wrong_or_right.place(relx=0.9, anchor="c", y=430)
-                self.player_anim(True)
+                self.wrong_or_right.place(relx=0.5, anchor="c", y=575)
+                self.player_anim(True)  # Trigger player animation.
                 self.player_punches += 1
                 self.player_punches_label.config(text=f"Player Punches: {self.player_punches}/10")
             else:
                 self.wrong_or_right.config(text="Wrong", fg="red")
-                self.wrong_or_right.place(relx=0.9, anchor="c", y=430)
-                self.cpu_anim(True)
+                self.wrong_or_right.place(relx=0.5, anchor="c", y=575)
+                self.cpu_anim(True)  # Trigger CPU animation.
                 self.cpu_punches += 1
                 self.cpu_punches_label.config(text=f"CPU Punches: {self.cpu_punches}/10")
+            # Clear the entry field for the next answer.
+            self.entry_variable.set("")
 
+            # Check for game end conditions.
             if self.player_punches >= 10:
                 self.save_results("win")
                 messagebox.showinfo("Info", "You win.")
                 self.root.destroy()
-                Menu()
+                Menu()  # Go to the main menu.
                 return
             elif self.cpu_punches >= 10:
                 self.save_results("lose")
                 messagebox.showinfo("Info", "You lose.")
                 self.root.destroy()
-                Menu()
+                Menu()  # Go to the main menu.
                 return
             else:
-                self.gen_question()
+                self.gen_question()  # Generate a new question.
         except:
-            messagebox.showerror("Error", "Enter a proper number")
+            messagebox.showerror("Error", "Enter an actual whole number.")
 
     def save_results(self, result):
+        # Save the game results to a text file (game_results).
         try:
             with open("game_results.txt", "a") as f:
                 f.write(f"Player Punches: {self.player_punches}, CPU Punches: {self.cpu_punches}, Result: {result}\n")
         except Exception as e:
             print(f"Error saving results: {e}")
-            
+
 if __name__ == "__main__":
     app = LoginMenu()
     app.mainloop()
