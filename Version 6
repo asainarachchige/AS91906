@@ -3,7 +3,7 @@ from tkinter import messagebox
 import random
 import json
 
-OPERATIONS = ["+", "-", "*","/"]
+OPERATIONS = ["+", "-", "*", "/"]
 
 class LoginMenu(tk.Tk):
     def __init__(self):
@@ -26,10 +26,10 @@ class LoginMenu(tk.Tk):
 
         # UI setup for login menu
         tk.Label(self, text="Username", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=160)
-        tk.Entry(self, width=20, textvariable=self.username, font=("Arial", 13)).place(x=300, y=156)
+        tk.Entry(self, width=20, textvariable=self.username, font=("Arial", 13)).place(x=300, y=160)
         tk.Label(self, text="Password", font=("Arial", 12), fg="white", bg="Black").place(x=205, y=220)
-        tk.Entry(self, width=20, textvariable=self.password, font=("Arial", 13)).place(x=300, y=216)
-        tk.Label(self, text="Boxing Maths Game", font=("Impact", 35), fg="white", bg="#BB005E").place(x=201, y=40)
+        tk.Entry(self, width=20, textvariable=self.password, font=("Arial", 13)).place(x=300, y=220)
+        tk.Label(self, text="Boxing Maths Game", font=("Impact", 35), fg="white", bg="#BB005E").place(relx=0.5, anchor="c", y=40)
 
         # Radio buttons for login and signup
         tk.Radiobutton(self, text="Login", bg="#BB005E", variable=self.selection, value=1).place(x=310, y=300)
@@ -80,11 +80,34 @@ class Menu(tk.Tk):
         self.resizable(False, False)
 
         button_start = tk.Button(self, text="Start Game", font=("Arial", 20), command=self.change_page)
-        button_start.place(relx=0.5, rely=0.5, anchor="c")
+        button_start.place(relx=0.5, rely=0.4, anchor="c")
+
+        button_instructions = tk.Button(self, text="Instructions", font=("Arial", 20), command=self.show_instructions)
+        button_instructions.place(relx=0.5, rely=0.6, anchor="c")
 
     def change_page(self):
         self.destroy()
         DifficultySelection()
+
+    def show_instructions(self):
+        instruction_window = tk.Toplevel(self)
+        instruction_window.title("Instructions")
+        instruction_window.geometry("500x400")
+        instruction_window.config(background="#BB005E")
+
+        instructions = (
+            "1. Select Start Game.\n"
+            "2. Choose difficulty level: Easy, Medium, Hard.\n"
+            "2. Solve math question displayed.\n"
+            "3. Type your answer in the input box and click 'Submit'.\n"
+            "4. Every answer correct = you score 1 punch;\n"
+            "    Every answer wrong = the CPU scores 1 punch.\n"
+            "5. First to reach 10 punches wins game either you or CPU.\n"
+            "6. Find how you performed against the CPU in the game_results file.\n"
+        )
+
+        tk.Label(instruction_window, text="Instructions", font=("Arial", 20), bg="#BB005E", fg="white").pack(pady=10)
+        tk.Label(instruction_window, text=instructions, font=("Arial", 14), bg="#BB005E", fg="white", justify=tk.LEFT).pack(pady=20)
 
 class DifficultySelection(tk.Tk):  
     def __init__(self):
@@ -98,7 +121,6 @@ class DifficultySelection(tk.Tk):
         self.medium_button = tk.Button(self, text='Medium', width=20, height=3, font=('Arial', 16), command=lambda: self.start_game(2), fg='#000000')
         self.hard_button = tk.Button(self, text='Hard', width=20, height=3, font=('Arial', 16), command=lambda: self.start_game(3), fg='#000000')
 
-        # The Layout of the Diffuclty Level Buttons 
         self.label.pack(pady=20)
         self.easy_button.pack(pady=15)
         self.medium_button.pack(pady=15)
@@ -121,27 +143,28 @@ class MathGame:
 
         self.root.title("Boxing Math Game")
         self.root.config(background="#BB005E")
-        self.root.geometry("500x500")
+        self.root.geometry("500x600")
         self.root.resizable(False, False)
 
         self.entry_variable = tk.StringVar()
 
-        self.canvas = tk.Canvas(self.root, width=700, height=500, background="#BB005E", highlightthickness=0)
+        self.canvas = tk.Canvas(self.root, width=700, height=600, background="#BB005E", highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
 
-        tk.Entry(self.root, font=("Arial", 16), bg="#BB005E", width=10, textvariable=self.entry_variable).place(relx=0.5, y=440, anchor="center")
-        tk.Button(self.root, text="Submit", command=self.check_answer).place(relx=0.5, y=470, anchor="center")
+        tk.Entry(self.root, font=("Arial", 16), bg="#BB005E", width=10, textvariable=self.entry_variable).place(relx=0.5, y=490, anchor="center")
+        tk.Button(self.root, text="Submit", command=self.check_answer).place(relx=0.5, y=530, anchor="center")
+        
         self.question = tk.Label(self.root, text="2+2", font=("Arial", 23), background="#BB005E", fg="white")
-        self.question.place(relx=0.5, anchor="center", y=390)
-
+        self.question.place(relx=0.5, anchor="center", y=440)
+        
         self.image_gif = tk.PhotoImage(file="boxing.gif", format="gif -index 0")
         self.canvas.create_image(0, 0, anchor="nw", image=self.image_gif)
 
         self.wrong_or_right = tk.Label(self.root, text="Wrong", font=("Arial", 14), background="#BB005E", fg="red")
 
-        self.user_punches_label = tk.Label(self.root, text="User Punches: 0/10", font=("Arial", 14), background="#BB005E", fg="white")
-        self.user_punches_label.place(x=2, anchor="nw", y=370)
-
+        self.player_punches_label = tk.Label(self.root, text="Player Punches: 0/10", font=("Arial", 14), background="#BB005E", fg="white")
+        self.player_punches_label.place(x=2, anchor="nw", y=370)
+        
         self.cpu_punches_label = tk.Label(self.root, text="CPU Punches: 0/10", font=("Arial", 14), background="#BB005E", fg="white")
         self.cpu_punches_label.place(relx=1, x=-2, anchor="ne", y=370)
 
@@ -193,7 +216,7 @@ class MathGame:
             if self.current_frame < 20:
                 self.root.after(10, lambda: self.cpu_anim(False))
         except:
-            pass  # No specific exception handling
+            pass  
 
     def check_answer(self):
         try:
@@ -202,7 +225,7 @@ class MathGame:
                 self.wrong_or_right.place(relx=0.9, anchor="c", y=430)
                 self.player_anim(True)
                 self.player_punches += 1
-                self.user_punches_label.config(text=f"Player Punches: {self.player_punches}/10")
+                self.player_punches_label.config(text=f"Player Punches: {self.player_punches}/10")
             else:
                 self.wrong_or_right.config(text="Wrong", fg="red")
                 self.wrong_or_right.place(relx=0.9, anchor="c", y=430)
@@ -230,7 +253,7 @@ class MathGame:
     def save_results(self, result):
         try:
             with open("game_results.txt", "a") as f:
-                f.write(f"User Punches: {self.player_punches}, CPU Punches: {self.cpu_punches}, Result: {result}\n")
+                f.write(f"Player Punches: {self.player_punches}, CPU Punches: {self.cpu_punches}, Result: {result}\n")
         except Exception as e:
             print(f"Error saving results: {e}")
             
